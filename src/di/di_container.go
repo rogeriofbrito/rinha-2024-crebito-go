@@ -3,7 +3,6 @@ package di
 import (
 	"context"
 	"os"
-	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -13,6 +12,7 @@ import (
 	controller_adapter "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/adapter"
 	infra_repository "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/repository"
 	"github.com/sarulabs/di"
+	log "github.com/sirupsen/logrus"
 )
 
 func GetDiContainer() di.Container {
@@ -22,6 +22,7 @@ func GetDiContainer() di.Container {
 		Name:  "fiber-controller-adapter",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building fiber-controller-adapter...")
 			return controller_adapter.FiberControllerAdapter{
 				Tc:  ctn.Get("transaction-controller").(controller.TransactionController),
 				App: ctn.Get("fiber").(*fiber.App),
@@ -33,7 +34,10 @@ func GetDiContainer() di.Container {
 		Name:  "fiber",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fiber.New(), nil
+			log.Debug("Building fiber...")
+			return fiber.New(fiber.Config{
+				DisableStartupMessage: true,
+			}), nil
 		},
 	})
 
@@ -41,6 +45,7 @@ func GetDiContainer() di.Container {
 		Name:  "transaction-controller",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building transaction-controller...")
 			return controller.TransactionController{
 				Ctuc: ctn.Get("create-transaction-use-case").(usecase.CreateTransactionUseCase),
 			}, nil
@@ -51,6 +56,7 @@ func GetDiContainer() di.Container {
 		Name:  "create-transaction-use-case",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building create-transaction-use-case...")
 			return usecase.CreateTransactionUseCase{
 				Cr: ctn.Get("client-repository").(external_repository.IClientRepository),
 				Tr: ctn.Get("transaction-repository").(external_repository.ITransactionRepository),
@@ -62,6 +68,7 @@ func GetDiContainer() di.Container {
 		Name:  "client-repository",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building client-repository...")
 			return infra_repository.PostgresClientRepository{}, nil
 		},
 	})
@@ -70,6 +77,7 @@ func GetDiContainer() di.Container {
 		Name:  "transaction-repository",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building transaction-repository...")
 			return infra_repository.PostgresTransactionRepository{}, nil
 		},
 	})
@@ -78,16 +86,25 @@ func GetDiContainer() di.Container {
 		Name:  "conn",
 		Scope: di.Request,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building conn...")
 			pool := ctn.Get("pool").(*pgxpool.Pool)
 			conn, err := pool.Acquire(context.Background())
 			if err != nil {
 				return nil, err
 			}
 
+			log.WithFields(log.Fields{
+				"pid": conn.Conn().PgConn().PID(),
+			}).Debug("Connection acquired from pool")
+
 			return conn, nil
 		},
 		Close: func(obj interface{}) error {
-			obj.(*pgxpool.Conn).Release()
+			conn := obj.(*pgxpool.Conn)
+			log.WithFields(log.Fields{
+				"pid": conn.Conn().PgConn().PID(),
+			}).Debug("Closing conn...")
+			conn.Release()
 			return nil
 		},
 	})
@@ -96,6 +113,7 @@ func GetDiContainer() di.Container {
 		Name:  "pool",
 		Scope: di.App,
 		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building pool...")
 			config, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL_CONN"))
 			if err != nil {
 				return nil, err
@@ -106,9 +124,20 @@ func GetDiContainer() di.Container {
 				return nil, err
 			}
 
+			log.WithFields(log.Fields{
+				"MaxConnLifetime":       pool.Config().MaxConnLifetime,
+				"MaxConnLifetimeJitter": pool.Config().MaxConnLifetimeJitter,
+				"MaxConnIdleTime":       pool.Config().MaxConnIdleTime,
+				"MaxConns":              pool.Config().MaxConns,
+				"MinConns":              pool.Config().MinConns,
+				"HealthCheckPeriod":     pool.Config().HealthCheckPeriod,
+				"LazyConnect":           pool.Config().LazyConnect,
+			}).Debug("Pool created")
+
 			return pool, nil
 		},
 		Close: func(obj interface{}) error {
+			log.Debug("Closing pool...")
 			obj.(*pgxpool.Pool).Close()
 			return nil
 		},
@@ -116,20 +145,3 @@ func GetDiContainer() di.Container {
 
 	return builder.Build()
 }
-
-var diContainer di.Container
-var lock = &sync.Mutex{}
-
-/*
-func GetDiContainer() di.Container {
-	if diContainer == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		if diContainer == nil {
-			diContainer = getDiContainer()
-		}
-	}
-
-	return diContainer
-}
-*/

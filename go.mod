@@ -5,6 +5,8 @@ go 1.22.0
 require (
 	github.com/gofiber/fiber/v2 v2.52.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/sarulabs/di v2.0.0+incompatible
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
@@ -23,7 +25,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/sarulabs/di v2.0.0+incompatible // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

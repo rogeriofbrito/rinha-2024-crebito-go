@@ -5,6 +5,7 @@ import (
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
 	"github.com/sarulabs/di"
+	log "github.com/sirupsen/logrus"
 )
 
 type FiberControllerAdapter struct {
@@ -36,6 +37,10 @@ func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ct
 
 func (fc FiberControllerAdapter) Start(dic di.Container) error {
 	fc.App.Post("/clientes/:id/transacoes", func(c *fiber.Ctx) error {
+		log.WithFields(log.Fields{
+			"originalUrl": c.OriginalURL(),
+			"method":      c.Method(),
+		}).Info("Handling request...")
 		return fc.createTransaction(dic, c)
 	})
 

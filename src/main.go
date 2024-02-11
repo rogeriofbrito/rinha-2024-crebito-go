@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	diContainer := di.GetDiContainer()
-	ca := diContainer.Get("fiber-controller-adapter").(controller_adapter.FiberControllerAdapter)
-	if err := ca.Start(); err != nil {
+	dic := di.GetDiContainer()
+	ca := dic.Get("fiber-controller-adapter").(controller_adapter.FiberControllerAdapter)
+	if err := ca.Start(dic); err != nil {
 		panic(err)
 	}
 }

@@ -15,7 +15,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func getDiContainer() di.Container {
+func GetDiContainer() di.Container {
 	builder, _ := di.NewBuilder()
 
 	builder.Add(di.Def{
@@ -120,6 +120,7 @@ func getDiContainer() di.Container {
 var diContainer di.Container
 var lock = &sync.Mutex{}
 
+/*
 func GetDiContainer() di.Container {
 	if diContainer == nil {
 		lock.Lock()
@@ -131,3 +132,4 @@ func GetDiContainer() di.Container {
 
 	return diContainer
 }
+*/

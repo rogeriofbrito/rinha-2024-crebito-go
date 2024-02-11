@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
 	external_repository "github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/external/repository"
+	"github.com/sarulabs/di"
 )
 
 type CreateTransactionUseCase struct {
@@ -10,15 +11,15 @@ type CreateTransactionUseCase struct {
 	Tr external_repository.ITransactionRepository
 }
 
-func (ctuc CreateTransactionUseCase) Execute(transaction domain.TransactionDomain) (domain.TransactionDomain, error) {
-	client, err := ctuc.Cr.GetById(transaction.ClientId)
+func (ctuc CreateTransactionUseCase) Execute(dic di.Container, transaction domain.TransactionDomain) (domain.TransactionDomain, error) {
+	client, err := ctuc.Cr.GetById(dic, transaction.ClientId)
 	if err != nil {
 		return domain.TransactionDomain{}, err
 	}
 
 	doStuf(client)
 
-	transaction, err = ctuc.Tr.Save(transaction)
+	transaction, err = ctuc.Tr.Save(dic, transaction)
 	if err != nil {
 		return domain.TransactionDomain{}, err
 	}

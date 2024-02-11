@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
+	"github.com/sarulabs/di"
 )
 
 type FiberControllerAdapter struct {
@@ -11,13 +12,19 @@ type FiberControllerAdapter struct {
 	App *fiber.App
 }
 
-func (fc FiberControllerAdapter) createTransaction(c *fiber.Ctx) error {
+func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ctx) error {
 	tm := controller_model.TransactionModel{}
 	if err := c.BodyParser(&tm); err != nil {
 		return err
 	}
 
-	b, err := fc.Tc.CreateTransaction(tm)
+	scdic, err := dic.SubContainer()
+	if err != nil {
+		return err
+	}
+	defer scdic.Delete()
+
+	b, err := fc.Tc.CreateTransaction(scdic, tm)
 	if err != nil {
 		return err
 	}
@@ -27,9 +34,9 @@ func (fc FiberControllerAdapter) createTransaction(c *fiber.Ctx) error {
 	return nil
 }
 
-func (fc FiberControllerAdapter) Start() error {
+func (fc FiberControllerAdapter) Start(dic di.Container) error {
 	fc.App.Post("/clientes/:id/transacoes", func(c *fiber.Ctx) error {
-		return fc.createTransaction(c)
+		return fc.createTransaction(dic, c)
 	})
 
 	return fc.App.Listen("127.0.0.1:3000")

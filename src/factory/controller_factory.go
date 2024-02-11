@@ -12,11 +12,13 @@ func NewControllerAdapter() controller_adapter.IControllerAdapter {
 
 func newFiberControllerAdapter() controller_adapter.FiberControllerAdapter {
 	return controller_adapter.FiberControllerAdapter{
-		TransactionController: newTransactionController(),
-		App:                   newFiberApp(),
+		Tc:  newTransactionController(),
+		App: newFiberApp(),
 	}
 }
 
 func newTransactionController() controller.TransactionController {
-	return controller.TransactionController{}
+	return controller.TransactionController{
+		Ctuc: newCreateTransactionUseCase(),
+	}
 }

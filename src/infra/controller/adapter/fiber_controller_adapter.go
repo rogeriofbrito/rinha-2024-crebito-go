@@ -7,8 +7,8 @@ import (
 )
 
 type FiberControllerAdapter struct {
-	TransactionController controller.TransactionController
-	App                   *fiber.App
+	Tc  controller.TransactionController
+	App *fiber.App
 }
 
 func (fc FiberControllerAdapter) createTransaction(c *fiber.Ctx) error {
@@ -17,7 +17,7 @@ func (fc FiberControllerAdapter) createTransaction(c *fiber.Ctx) error {
 		return err
 	}
 
-	b, err := fc.TransactionController.CreateTransaction(tm)
+	b, err := fc.Tc.CreateTransaction(tm)
 	if err != nil {
 		return err
 	}

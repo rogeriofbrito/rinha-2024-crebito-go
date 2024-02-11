@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:alpine3.19
+    environment:
+      POSTGRES_PASSWORD: crebito_pass
+      POSTGRES_USER: crebito_user
+      POSTGRES_DB: crebito_db
+    ports:
+      - 5432:5432

@@ -9,6 +9,7 @@ const (
 
 type TransactionDomain struct {
 	Id          int64
+	ClientId    int64
 	Type        TransactionType
 	Value       int64
 	Description string

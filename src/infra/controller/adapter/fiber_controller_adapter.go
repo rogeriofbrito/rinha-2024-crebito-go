@@ -1,6 +1,8 @@
 package controller_adapter
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
@@ -19,13 +21,18 @@ func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ct
 		return err
 	}
 
+	clientId, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
 	scdic, err := dic.SubContainer()
 	if err != nil {
 		return err
 	}
 	defer scdic.Delete()
 
-	b, err := fc.Tc.CreateTransaction(scdic, tm)
+	b, err := fc.Tc.CreateTransaction(scdic, clientId, tm)
 	if err != nil {
 		return err
 	}

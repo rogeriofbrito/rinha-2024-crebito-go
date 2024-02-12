@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type TransactionType uint8
 
 const (
@@ -13,4 +15,5 @@ type TransactionDomain struct {
 	Type        TransactionType
 	Value       int64
 	Description string
+	CreatedAt   time.Time
 }

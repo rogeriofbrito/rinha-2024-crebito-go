@@ -83,6 +83,23 @@ func GetDiContainer() di.Container {
 	})
 
 	builder.Add(di.Def{
+		Name:  "tx",
+		Scope: di.Request,
+		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building tx...")
+			conn := ctn.Get("conn").(*pgxpool.Conn)
+			tx, err := conn.Begin(context.Background())
+			if err != nil {
+				return nil, err
+			}
+
+			log.Debug("Transaction begun")
+
+			return tx, nil
+		},
+	})
+
+	builder.Add(di.Def{
 		Name:  "conn",
 		Scope: di.Request,
 		Build: func(ctn di.Container) (interface{}, error) {

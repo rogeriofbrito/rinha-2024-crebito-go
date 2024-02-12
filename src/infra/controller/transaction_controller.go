@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/usecase"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
@@ -11,13 +13,33 @@ type TransactionController struct {
 	Ctuc usecase.CreateTransactionUseCase
 }
 
-func (tc TransactionController) CreateTransaction(dic di.Container, tm controller_model.TransactionModel) (controller_model.TransactionModel, error) {
-	td, err := tc.Ctuc.Execute(dic, domain.TransactionDomain{})
+func (tc TransactionController) CreateTransaction(dic di.Container, clientId int64, tm controller_model.TransactionModel) (controller_model.TransactionModel, error) {
+	transactionType, err := getTransactionType(tm.Type)
 	if err != nil {
 		return controller_model.TransactionModel{}, err
 	}
 
-	print(td.Id)
+	td := domain.TransactionDomain{
+		ClientId:    clientId,
+		Type:        transactionType,
+		Value:       tm.Value,
+		Description: tm.Description,
+	}
+
+	_, err = tc.Ctuc.Execute(dic, td)
+	if err != nil {
+		return controller_model.TransactionModel{}, err
+	}
 
 	return controller_model.TransactionModel{}, nil
+}
+
+func getTransactionType(transactionTypeStr string) (domain.TransactionType, error) {
+	if transactionTypeStr == "c" {
+		return 0, nil
+	} else if transactionTypeStr == "d" {
+		return 1, nil
+	} else {
+		return 0, fmt.Errorf("invalid transaction type: %s", transactionTypeStr)
+	}
 }

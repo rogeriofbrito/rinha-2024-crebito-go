@@ -16,29 +16,29 @@ type CreateTransactionUseCase struct {
 	Tr external_repository.ITransactionRepository
 }
 
-func (ctuc CreateTransactionUseCase) Execute(dic di.Container, transaction domain.TransactionDomain) (domain.TransactionDomain, error) {
+func (ctuc CreateTransactionUseCase) Execute(dic di.Container, transaction domain.TransactionDomain) (domain.ClientDomain, domain.TransactionDomain, error) {
 	tx := dic.Get("tx").(pgx.Tx)
 
 	client, err := ctuc.Cr.GetById(dic, transaction.ClientId)
 	if err != nil {
 		tx.Rollback(context.Background())
-		return domain.TransactionDomain{}, err
+		return domain.ClientDomain{}, domain.TransactionDomain{}, err
 	}
 
-	_, err = ctuc.updateClient(dic, client, transaction)
+	client, err = ctuc.updateClient(dic, client, transaction)
 	if err != nil {
 		tx.Rollback(context.Background())
-		return domain.TransactionDomain{}, err
+		return domain.ClientDomain{}, domain.TransactionDomain{}, err
 	}
 
 	transaction, err = ctuc.Tr.Save(dic, transaction)
 	if err != nil {
 		tx.Rollback(context.Background())
-		return domain.TransactionDomain{}, err
+		return domain.ClientDomain{}, domain.TransactionDomain{}, err
 	}
 
 	tx.Commit(context.Background())
-	return transaction, nil
+	return client, transaction, nil
 }
 
 func (ctuc CreateTransactionUseCase) updateClient(dic di.Container, client domain.ClientDomain, transaction domain.TransactionDomain) (domain.ClientDomain, error) {

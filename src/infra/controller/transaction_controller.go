@@ -13,25 +13,28 @@ type TransactionController struct {
 	Ctuc usecase.CreateTransactionUseCase
 }
 
-func (tc TransactionController) CreateTransaction(dic di.Container, clientId int64, tm controller_model.TransactionModel) (controller_model.TransactionModel, error) {
-	transactionType, err := getTransactionType(tm.Type)
+func (tc TransactionController) CreateTransaction(dic di.Container, clientId int64, req controller_model.CreateTransactionRequestModel) (controller_model.CreateTransactionResponseModel, error) {
+	transactionType, err := getTransactionType(req.Type)
 	if err != nil {
-		return controller_model.TransactionModel{}, err
+		return controller_model.CreateTransactionResponseModel{}, err
 	}
 
 	td := domain.TransactionDomain{
 		ClientId:    clientId,
 		Type:        transactionType,
-		Value:       tm.Value,
-		Description: tm.Description,
+		Value:       req.Value,
+		Description: req.Description,
 	}
 
-	_, err = tc.Ctuc.Execute(dic, td)
+	cd, _, err := tc.Ctuc.Execute(dic, td)
 	if err != nil {
-		return controller_model.TransactionModel{}, err
+		return controller_model.CreateTransactionResponseModel{}, err
 	}
 
-	return controller_model.TransactionModel{}, nil
+	return controller_model.CreateTransactionResponseModel{
+		Limit:   cd.Limit,
+		Balance: cd.Balance,
+	}, nil
 }
 
 func getTransactionType(transactionTypeStr string) (domain.TransactionType, error) {

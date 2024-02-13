@@ -16,8 +16,8 @@ type FiberControllerAdapter struct {
 }
 
 func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ctx) error {
-	tm := controller_model.TransactionModel{}
-	if err := c.BodyParser(&tm); err != nil {
+	req := controller_model.CreateTransactionRequestModel{}
+	if err := c.BodyParser(&req); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ct
 	}
 	defer scdic.Delete()
 
-	tm, err = fc.Tc.CreateTransaction(scdic, clientId, tm)
+	res, err := fc.Tc.CreateTransaction(scdic, clientId, req)
 	if err != nil {
 		switch err.Error() {
 		case "client not found":
@@ -47,13 +47,7 @@ func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ct
 		return nil
 	}
 
-	c.JSON(struct {
-		Limit   int64 `json:"limite"`
-		Balance int64 `json:"saldo"`
-	}{
-		Limit:   99,
-		Balance: 99,
-	})
+	c.JSON(res)
 
 	return nil
 }

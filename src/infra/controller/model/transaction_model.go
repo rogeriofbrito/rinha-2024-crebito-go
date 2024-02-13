@@ -1,9 +1,8 @@
 package controller_model
 
 import (
-	"time"
-
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
+	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/utils"
 )
 
 type CreateTransactionRequestModel struct {
@@ -18,19 +17,19 @@ type CreateTransactionResponseModel struct {
 }
 
 type GetStatementBalanceResponseModel struct {
-	Total         int64     `json:"total"`
-	StatementDate time.Time `json:"data_extrato"`
-	Limit         int64     `json:"limite"`
+	Total         int64            `json:"total"`
+	StatementDate utils.CustomTime `json:"data_extrato"`
+	Limit         int64            `json:"limite"`
 }
 
-type GetStatementTransactionResponseModel []struct {
+type GetStatementTransactionResponseModel struct {
 	Value        int64                  `json:"valor"`
 	Type         domain.TransactionType `json:"tipo"`
 	Description  string                 `json:"descricao"`
-	CarriedOutIn time.Time              `json:"realizada_em"`
+	CarriedOutIn utils.CustomTime       `json:"realizada_em"`
 }
 
 type GetStatementResponseModel struct {
-	Balance          GetStatementBalanceResponseModel     `json:"saldo"`
-	LastTransactions GetStatementTransactionResponseModel `json:"ultimas_transacoes"`
+	Balance          GetStatementBalanceResponseModel       `json:"saldo"`
+	LastTransactions []GetStatementTransactionResponseModel `json:"ultimas_transacoes"`
 }

@@ -13,6 +13,29 @@ import (
 
 type PostgresTransactionRepository struct{}
 
+func (ptr PostgresTransactionRepository) GetByClientIdLimit(dic di.Container, clientId int64, limit int64, options external_repository.DBOptions) ([]domain.TransactionDomain, error) {
+	tx := dic.Get("tx").(pgx.Tx)
+
+	query := "select id, client_id, type, value, description, created_at from transaction where client_id=$1 limit $2"
+	rows, err := tx.Query(context.Background(), query, clientId, limit)
+	if err != nil {
+		return []domain.TransactionDomain{}, err
+	}
+	defer rows.Close()
+
+	transactions := []domain.TransactionDomain{}
+	for rows.Next() {
+		transaction := domain.TransactionDomain{}
+		err = rows.Scan(&transaction.Id, &transaction.ClientId, &transaction.Type, &transaction.Value, &transaction.Description, &transaction.CreatedAt)
+		if err != nil {
+			return []domain.TransactionDomain{}, err
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
+}
+
 func (ptr PostgresTransactionRepository) Save(dic di.Container, transaction domain.TransactionDomain, options external_repository.DBOptions) (domain.TransactionDomain, error) {
 	tx := dic.Get("tx").(pgx.Tx)
 

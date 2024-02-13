@@ -6,6 +6,7 @@ import (
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/usecase"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
+	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/utils"
 	"github.com/sarulabs/di"
 )
 
@@ -15,7 +16,7 @@ type TransactionController struct {
 }
 
 func (tc TransactionController) CreateTransaction(dic di.Container, clientId int64, req controller_model.CreateTransactionRequestModel) (controller_model.CreateTransactionResponseModel, error) {
-	transactionType, err := getTransactionType(req.Type)
+	transactionType, err := tc.getTransactionType(req.Type)
 	if err != nil {
 		return controller_model.CreateTransactionResponseModel{}, err
 	}
@@ -47,13 +48,14 @@ func (tc TransactionController) GetStatement(dic di.Container, clientId int64) (
 	return controller_model.GetStatementResponseModel{
 		Balance: controller_model.GetStatementBalanceResponseModel{
 			Total:         sd.Balance.Total,
-			StatementDate: sd.Balance.StatementDate,
+			StatementDate: utils.CustomTime(sd.Balance.StatementDate),
 			Limit:         sd.Balance.Limit,
 		},
+		LastTransactions: tc.convertTransactions(sd.LastTransactions),
 	}, nil
 }
 
-func getTransactionType(transactionTypeStr string) (domain.TransactionType, error) {
+func (tc TransactionController) getTransactionType(transactionTypeStr string) (domain.TransactionType, error) {
 	if transactionTypeStr == "c" {
 		return domain.Credit, nil
 	} else if transactionTypeStr == "d" {
@@ -61,4 +63,19 @@ func getTransactionType(transactionTypeStr string) (domain.TransactionType, erro
 	} else {
 		return 0, fmt.Errorf("invalid transaction type: %s", transactionTypeStr) // TODO: create specfic error
 	}
+}
+
+func (tc TransactionController) convertTransactions(stds []domain.StatementTransactionDomain) []controller_model.GetStatementTransactionResponseModel {
+	strms := []controller_model.GetStatementTransactionResponseModel{}
+
+	for _, v := range stds {
+		strms = append(strms, controller_model.GetStatementTransactionResponseModel{
+			Value:        v.Value,
+			Type:         v.Type,
+			Description:  v.Description,
+			CarriedOutIn: utils.CustomTime(v.CarriedOutIn),
+		})
+	}
+
+	return strms
 }

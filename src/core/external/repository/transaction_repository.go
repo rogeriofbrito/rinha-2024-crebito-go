@@ -6,5 +6,5 @@ import (
 )
 
 type ITransactionRepository interface {
-	Save(dic di.Container, transaction domain.TransactionDomain) (domain.TransactionDomain, error)
+	Save(dic di.Container, transaction domain.TransactionDomain, options DBOptions) (domain.TransactionDomain, error)
 }

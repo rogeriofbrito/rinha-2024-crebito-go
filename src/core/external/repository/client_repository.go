@@ -6,6 +6,6 @@ import (
 )
 
 type IClientRepository interface {
-	GetById(dic di.Container, id int64) (domain.ClientDomain, error)
-	Update(dic di.Container, client domain.ClientDomain) (domain.ClientDomain, error)
+	GetById(dic di.Container, id int64, options DBOptions) (domain.ClientDomain, error)
+	Update(dic di.Container, client domain.ClientDomain, options DBOptions) (domain.ClientDomain, error)
 }

@@ -11,6 +11,7 @@ import (
 
 type TransactionController struct {
 	Ctuc usecase.CreateTransactionUseCase
+	Gsuc usecase.GetStatementUseCase
 }
 
 func (tc TransactionController) CreateTransaction(dic di.Container, clientId int64, req controller_model.CreateTransactionRequestModel) (controller_model.CreateTransactionResponseModel, error) {
@@ -34,6 +35,21 @@ func (tc TransactionController) CreateTransaction(dic di.Container, clientId int
 	return controller_model.CreateTransactionResponseModel{
 		Limit:   cd.Limit,
 		Balance: cd.Balance,
+	}, nil
+}
+
+func (tc TransactionController) GetStatement(dic di.Container, clientId int64) (controller_model.GetStatementResponseModel, error) {
+	sd, err := tc.Gsuc.Execute(dic, clientId)
+	if err != nil {
+		return controller_model.GetStatementResponseModel{}, err
+	}
+
+	return controller_model.GetStatementResponseModel{
+		Balance: controller_model.GetStatementBalanceResponseModel{
+			Total:         sd.Balance.Total,
+			StatementDate: sd.Balance.StatementDate,
+			Limit:         sd.Balance.Limit,
+		},
 	}, nil
 }
 

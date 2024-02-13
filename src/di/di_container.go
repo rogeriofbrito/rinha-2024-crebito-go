@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	external_repository "github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/external/repository"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/usecase"
@@ -48,6 +49,7 @@ func GetDiContainer() di.Container {
 			log.Debug("Building transaction-controller...")
 			return controller.TransactionController{
 				Ctuc: ctn.Get("create-transaction-use-case").(usecase.CreateTransactionUseCase),
+				Gsuc: ctn.Get("get-statement-use-case").(usecase.GetStatementUseCase),
 			}, nil
 		},
 	})
@@ -58,6 +60,18 @@ func GetDiContainer() di.Container {
 		Build: func(ctn di.Container) (interface{}, error) {
 			log.Debug("Building create-transaction-use-case...")
 			return usecase.CreateTransactionUseCase{
+				Cr: ctn.Get("client-repository").(external_repository.IClientRepository),
+				Tr: ctn.Get("transaction-repository").(external_repository.ITransactionRepository),
+			}, nil
+		},
+	})
+
+	builder.Add(di.Def{
+		Name:  "get-statement-use-case",
+		Scope: di.App,
+		Build: func(ctn di.Container) (interface{}, error) {
+			log.Debug("Building get-statement-use-case...")
+			return usecase.GetStatementUseCase{
 				Cr: ctn.Get("client-repository").(external_repository.IClientRepository),
 				Tr: ctn.Get("transaction-repository").(external_repository.ITransactionRepository),
 			}, nil
@@ -88,7 +102,9 @@ func GetDiContainer() di.Container {
 		Build: func(ctn di.Container) (interface{}, error) {
 			log.Debug("Building tx...")
 			conn := ctn.Get("conn").(*pgxpool.Conn)
-			tx, err := conn.Begin(context.Background())
+			tx, err := conn.BeginTx(context.Background(), pgx.TxOptions{
+				IsoLevel: pgx.ReadCommitted,
+			})
 			if err != nil {
 				return nil, err
 			}

@@ -19,7 +19,9 @@ type CreateTransactionUseCase struct {
 func (ctuc CreateTransactionUseCase) Execute(dic di.Container, transaction domain.TransactionDomain) (domain.ClientDomain, domain.TransactionDomain, error) {
 	tx := dic.Get("tx").(pgx.Tx)
 
-	client, err := ctuc.Cr.GetById(dic, transaction.ClientId)
+	client, err := ctuc.Cr.GetById(dic, transaction.ClientId, external_repository.DBOptions{
+		LockMode: external_repository.Pessimistic,
+	})
 	if err != nil {
 		tx.Rollback(context.Background())
 		return domain.ClientDomain{}, domain.TransactionDomain{}, err
@@ -31,7 +33,7 @@ func (ctuc CreateTransactionUseCase) Execute(dic di.Container, transaction domai
 		return domain.ClientDomain{}, domain.TransactionDomain{}, err
 	}
 
-	transaction, err = ctuc.Tr.Save(dic, transaction)
+	transaction, err = ctuc.Tr.Save(dic, transaction, external_repository.DBOptions{})
 	if err != nil {
 		tx.Rollback(context.Background())
 		return domain.ClientDomain{}, domain.TransactionDomain{}, err
@@ -53,12 +55,12 @@ func (ctuc CreateTransactionUseCase) updateClient(dic di.Container, client domai
 
 	if transaction.Type == domain.Debit {
 		client.Balance -= transaction.Value
-		return ctuc.Cr.Update(dic, client)
+		return ctuc.Cr.Update(dic, client, external_repository.DBOptions{})
 	}
 
 	if transaction.Type == domain.Credit {
 		client.Balance += transaction.Value
-		return ctuc.Cr.Update(dic, client)
+		return ctuc.Cr.Update(dic, client, external_repository.DBOptions{})
 	}
 
 	return domain.ClientDomain{}, fmt.Errorf("invalid transaction type: %d", transaction.Type)

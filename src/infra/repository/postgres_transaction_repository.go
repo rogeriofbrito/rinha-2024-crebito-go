@@ -7,12 +7,13 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
+	external_repository "github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/external/repository"
 	"github.com/sarulabs/di"
 )
 
 type PostgresTransactionRepository struct{}
 
-func (ptr PostgresTransactionRepository) Save(dic di.Container, transaction domain.TransactionDomain) (domain.TransactionDomain, error) {
+func (ptr PostgresTransactionRepository) Save(dic di.Container, transaction domain.TransactionDomain, options external_repository.DBOptions) (domain.TransactionDomain, error) {
 	tx := dic.Get("tx").(pgx.Tx)
 
 	transaction.CreatedAt = time.Now()

@@ -17,7 +17,7 @@ func (ptr PostgresTransactionRepository) Save(dic di.Container, transaction doma
 
 	transaction.CreatedAt = time.Now()
 
-	rows, err := tx.Query(context.Background(), "insert into transaction (client_id, type, value, description, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+	rows, err := tx.Query(context.Background(), "insert into transaction (client_id, type, value, description, created_at) VALUES ($1, $2, $3, $4, $5) returning id", //TODO: return all values
 		transaction.ClientId, transaction.Type, transaction.Value, transaction.Description, time.Now())
 	if err != nil {
 		return domain.TransactionDomain{}, err
@@ -25,7 +25,7 @@ func (ptr PostgresTransactionRepository) Save(dic di.Container, transaction doma
 	defer rows.Close()
 
 	if !rows.Next() {
-		return domain.TransactionDomain{}, errors.New("not found")
+		return domain.TransactionDomain{}, errors.New("not found") // TODO: create specfic error
 	}
 
 	err = rows.Scan(&transaction.Id)

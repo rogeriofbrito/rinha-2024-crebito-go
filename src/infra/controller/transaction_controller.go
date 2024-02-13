@@ -36,10 +36,10 @@ func (tc TransactionController) CreateTransaction(dic di.Container, clientId int
 
 func getTransactionType(transactionTypeStr string) (domain.TransactionType, error) {
 	if transactionTypeStr == "c" {
-		return 0, nil
+		return domain.Credit, nil
 	} else if transactionTypeStr == "d" {
-		return 1, nil
+		return domain.Debit, nil
 	} else {
-		return 0, fmt.Errorf("invalid transaction type: %s", transactionTypeStr)
+		return 0, fmt.Errorf("invalid transaction type: %s", transactionTypeStr) // TODO: create specfic error
 	}
 }

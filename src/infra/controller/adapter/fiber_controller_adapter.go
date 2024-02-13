@@ -32,12 +32,28 @@ func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ct
 	}
 	defer scdic.Delete()
 
-	b, err := fc.Tc.CreateTransaction(scdic, clientId, tm)
+	tm, err = fc.Tc.CreateTransaction(scdic, clientId, tm)
 	if err != nil {
-		return err
+		switch err.Error() {
+		case "client not found":
+			c.Status(fiber.StatusNotFound)
+			return nil
+		case "invalid transaction":
+			c.Status(fiber.StatusUnprocessableEntity)
+			return nil
+		}
+
+		c.Status(fiber.StatusInternalServerError)
+		return nil
 	}
 
-	c.JSON(b)
+	c.JSON(struct {
+		Limit   int64 `json:"limite"`
+		Balance int64 `json:"saldo"`
+	}{
+		Limit:   99,
+		Balance: 99,
+	})
 
 	return nil
 }

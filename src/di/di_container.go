@@ -152,6 +152,8 @@ func GetDiContainer() di.Container {
 				return nil, err
 			}
 
+			config.MaxConns = 50
+
 			pool, err := pgxpool.ConnectConfig(context.Background(), config)
 			if err != nil {
 				return nil, err

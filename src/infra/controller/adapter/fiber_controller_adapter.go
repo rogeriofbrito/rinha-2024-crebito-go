@@ -92,5 +92,5 @@ func (fc FiberControllerAdapter) Start(dic di.Container) error {
 		return fc.getStatement(dic, c)
 	})
 
-	return fc.App.Listen("127.0.0.1:3000")
+	return fc.App.Listen(":3000")
 }

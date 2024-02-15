@@ -1,7 +1,6 @@
 package controller_model
 
 import (
-	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/core/domain"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/utils"
 )
 
@@ -23,10 +22,10 @@ type GetStatementBalanceResponseModel struct {
 }
 
 type GetStatementTransactionResponseModel struct {
-	Value        int64                  `json:"valor"`
-	Type         domain.TransactionType `json:"tipo"`
-	Description  string                 `json:"descricao"`
-	CarriedOutIn utils.CustomTime       `json:"realizada_em"`
+	Value        int64            `json:"valor"`
+	Type         string           `json:"tipo"`
+	Description  string           `json:"descricao"`
+	CarriedOutIn utils.CustomTime `json:"realizada_em"`
 }
 
 type GetStatementResponseModel struct {

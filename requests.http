@@ -1,0 +1,53 @@
+### Variables 
+@apiurl = http://localhost:3000
+
+### GET extrato
+GET {{apiurl}}/clientes/1/extrato HTTP/1.1
+
+### POST transacao (should return 422)
+POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
+Content-Type: application/json
+
+{
+   "valor": 1.2, 
+   "tipo": "d", 
+   "descricao": "devolve"
+}
+
+### POST transacao (should return 422)
+POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
+Content-Type: application/json
+
+{
+   "valor": 1, 
+   "tipo": "x", 
+   "descricao": "devolve"
+}
+
+### POST transacao (should return 422)
+POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
+Content-Type: application/json
+
+{
+   "valor": 1, 
+   "tipo": "c", 
+   "descricao": "123456789 e mais um pouco"
+}
+
+### POST transacao (should return 422)
+POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
+
+{
+   "valor": 1, 
+   "tipo": "c", 
+   "descricao": ""
+}
+
+### POST transacao (should return 422)
+POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
+
+{
+   "valor": 1, 
+   "tipo": "c", 
+   "descricao": null
+}

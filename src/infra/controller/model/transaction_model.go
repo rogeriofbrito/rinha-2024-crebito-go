@@ -6,9 +6,9 @@ import (
 )
 
 type CreateTransactionRequestModel struct {
-	Value       int64  `json:"valor"`
-	Type        string `json:"tipo"`
-	Description string `json:"descricao"`
+	Value       int64  `json:"valor" validate:"required"`
+	Type        string `json:"tipo" validate:"oneof=c d,required"`
+	Description string `json:"descricao" validate:"min=1,max=10,required"`
 }
 
 type CreateTransactionResponseModel struct {

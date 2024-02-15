@@ -3,6 +3,7 @@ package controller_adapter
 import (
 	"strconv"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller"
 	controller_model "github.com/rogeriofbrito/rinha-2024-crebito-go/src/infra/controller/model"
@@ -18,7 +19,14 @@ type FiberControllerAdapter struct {
 func (fc FiberControllerAdapter) createTransaction(dic di.Container, c *fiber.Ctx) error {
 	req := controller_model.CreateTransactionRequestModel{}
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		c.Status(fiber.StatusUnprocessableEntity)
+		return nil
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		c.Status(fiber.StatusUnprocessableEntity)
+		return nil
 	}
 
 	clientId, err := strconv.ParseInt(c.Params("id"), 10, 64)

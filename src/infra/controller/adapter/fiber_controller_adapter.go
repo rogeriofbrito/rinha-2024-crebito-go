@@ -74,6 +74,12 @@ func (fc FiberControllerAdapter) getStatement(dic di.Container, c *fiber.Ctx) er
 
 	st, err := fc.Tc.GetStatement(scdic, clientId)
 	if err != nil {
+		switch err.Error() {
+		case "client not found":
+			c.Status(fiber.StatusNotFound)
+			return nil
+		}
+
 		c.Status(fiber.StatusInternalServerError)
 		return nil
 	}

@@ -4,6 +4,9 @@
 ### GET extrato
 GET {{apiurl}}/clientes/1/extrato HTTP/1.1
 
+### GET extrato
+GET {{apiurl}}/clientes/6/extrato HTTP/1.1
+
 ### POST transacao (should return 422)
 POST {{apiurl}}/clientes/1/transacoes HTTP/1.1
 Content-Type: application/json

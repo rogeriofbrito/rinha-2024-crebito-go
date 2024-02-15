@@ -16,7 +16,7 @@ type PostgresTransactionRepository struct{}
 func (ptr PostgresTransactionRepository) GetByClientIdLimit(dic di.Container, clientId int64, limit int64, options external_repository.DBOptions) ([]domain.TransactionDomain, error) {
 	tx := dic.Get("tx").(pgx.Tx)
 
-	query := "select id, client_id, type, value, description, created_at from transaction where client_id=$1 limit $2"
+	query := "select id, client_id, type, value, description, created_at from transaction where client_id=$1 order by created_at desc limit $2"
 	rows, err := tx.Query(context.Background(), query, clientId, limit)
 	if err != nil {
 		return []domain.TransactionDomain{}, err

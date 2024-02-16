@@ -1,5 +1,5 @@
 ### Variables 
-@apiurl = http://localhost:3000
+@apiurl = http://localhost:9999
 
 ### GET extrato
 GET {{apiurl}}/clientes/1/extrato HTTP/1.1

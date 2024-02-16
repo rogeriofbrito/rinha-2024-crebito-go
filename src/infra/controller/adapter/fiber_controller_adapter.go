@@ -1,6 +1,8 @@
 package controller_adapter
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/go-playground/validator"
@@ -106,5 +108,5 @@ func (fc FiberControllerAdapter) Start(dic di.Container) error {
 		return fc.getStatement(dic, c)
 	})
 
-	return fc.App.Listen(":3000")
+	return fc.App.Listen(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }

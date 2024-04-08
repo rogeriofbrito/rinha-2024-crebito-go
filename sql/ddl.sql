@@ -16,3 +16,5 @@ CREATE TABLE public."transaction" (
 );
 
 ALTER TABLE public."transaction" ADD CONSTRAINT transaction_fk FOREIGN KEY (client_id) REFERENCES public.client(id);
+
+CREATE INDEX transaction_client_id_idx ON public."transaction" (client_id);
